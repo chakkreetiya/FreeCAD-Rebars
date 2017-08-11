@@ -99,18 +99,28 @@ class SquareFootingTaskPanel:
         widget3 = QtGui.QWidget()
         widget3.setWindowTitle("Position")
         grid3 = QtGui.QGridLayout()
+        grid3.columnMinimumWidth (0)
+        grid3.setColumnStretch (0, 1)
+        grid3.setColumnStretch (1, 5)
+        grid3.setColumnStretch (2, 3)
         self.xLabel = QtGui.QLabel(u"x")
         self.yLabel = QtGui.QLabel(u"y")
         self.zLabel = QtGui.QLabel(u"z")
+        self.xLabel.setFixedWidth(20)
+        self.yLabel.setFixedWidth(20)
+        self.zLabel.setFixedWidth(20)
         grid3.addWidget(self.xLabel, 1, 0)
-        grid3.addWidget(self.yLabel, 2, 0)
-        grid3.addWidget(self.zLabel, 3, 0)
+        grid3.addWidget(self.yLabel, 2, 0, QtCore.Qt.AlignRight)
+        grid3.addWidget(self.zLabel, 3, 0, QtCore.Qt.AlignRight)
+        self.dummyLabel = QtGui.QLabel(u"")
+        grid3.addWidget(self.dummyLabel, 1, 2)
         
         self.x = QtGui.QDoubleSpinBox()
         self.x.setValue(0)
         self.x.setDecimals(1)
         self.x.setSuffix(' mm')
         self.x.setSingleStep(25)
+        self.x.setRange(-1000000, 1000000)
         grid3.addWidget(self.x, 1, 1)
         self.y = QtGui.QDoubleSpinBox()
         self.y.setValue(0)
@@ -135,12 +145,13 @@ class SquareFootingTaskPanel:
         num = self.numRebar.value()
         covering = self.covering.value()
         dia = self.dia.value()
-        makeSquareFooting(L,t,num,dia,covering)
+        pos = ( self.x.value(),self.y.value(),self.z.value() )
+        makeSquareFooting(L,t,num,dia,covering,pos)
         return True
 
-def makeSquareFooting(L,t,num,dia,covering):
+def makeSquareFooting(L,t,num,dia,covering,position):
     footing1 = Arch.makeStructure(length=L,width=L,height=t,name='Footing1')
-    footing1.Placement.Base=Vector(+L/2., 0 , +t/2.)
+    footing1.Placement.Base=Vector(+L/2.+position[0], 0++position[1] , +t/2.+position[2])
     footing1.ViewObject.Transparency = 80
     FreeCAD.ActiveDocument.recompute()
     
