@@ -1,6 +1,6 @@
 """
   SquareFooting.py
-  10 Aug 2017
+  Updated 17 Aug 2017
   
 """
 import os
@@ -16,8 +16,11 @@ import  UShapeRebar , Stirrup
 
 class SquareFootingTaskPanel:
     def __init__(self):
-        #dir_path = os.path.dirname(os.path.realpath(__file__))
-        #Msg("%s\n"%dir_path)
+        self.form = [self.getWidget1(),
+                     self.getWidget2(),
+                     self.getWidget3()]
+    
+    def getWidget1(self):
         widget1 = QtGui.QWidget()
         widget1.setFixedHeight(250)
         widget1.setWindowTitle("Square Footing")
@@ -26,42 +29,25 @@ class SquareFootingTaskPanel:
         self.imageLabel.setParent(widget1)
         self.imageLabel.setPixmap(QtGui.QPixmap(os.path.split(os.path.abspath(__file__))[0] + "/ui/SquareFooting01.svg"))
         
-        self.lengthLabel = QtGui.QLabel(u"Lenght")
+        self.lengthLabel = QtGui.QLabel(u"Length")
         self.lengthLabel.setParent(widget1)
         self.lengthLabel.setGeometry(200-20,150,120,25)
-        self.Length = QtGui.QDoubleSpinBox()
-        self.Length.setRange(1, 10000000.00)
-        self.Length.setValue(1000)
-        self.Length.setDecimals(0)
-        self.Length.setSuffix(' mm')
-        self.Length.setSingleStep(25)
+        self.Length = FreeCADGui.UiLoader().createWidget("Gui::InputField")
+        self.Length.setText(FreeCAD.Units.Quantity(1000,FreeCAD.Units.Length).UserString)
         self.Length.setParent(widget1)
-        self.Length.setGeometry(200-20,175,120,25)
+        self.Length.setGeometry(200-20,175,150,25)
         
         
         self.heightLabel = QtGui.QLabel(u"Height")
         self.heightLabel.setParent(widget1)
         self.heightLabel.setGeometry(200-20,50,120,25)
-        self.Height = QtGui.QDoubleSpinBox()
-        self.Height.setRange(1, 10000000.00)
-        self.Height.setValue(300)
-        self.Height.setDecimals(0)
-        self.Height.setSuffix(' mm')
-        self.Height.setSingleStep(25)
+        self.Height = FreeCADGui.UiLoader().createWidget("Gui::InputField")
+        self.Height.setText(FreeCAD.Units.Quantity(300,FreeCAD.Units.Length).UserString)
         self.Height.setParent(widget1)
-        self.Height.setGeometry(200-20,75,120,25)
-        
-        #grid = QtGui.QGridLayout()
-        #grid.addWidget(self.imageLabel, 0, 0) 
-        #grid.addWidget(self.lengthLabel, 1, 0) 
-        #grid.addWidget(self.Length, 1, 1)
-        
-        #grid.addWidget(self.widthLabel, 2, 0) 
-        #grid.addWidget(self.Width, 2, 1)
-        #grid.addWidget(self.heightLabel, 3, 0) 
-        #grid.addWidget(self.Height, 3, 1)
-        #widget1.setLayout(grid)
-        
+        self.Height.setGeometry(200-20,75,150,25)
+        return widget1
+    
+    def getWidget2(self):
         widget2 = QtGui.QWidget()
         widget2.setWindowTitle("Reinforcement")
         grid2 = QtGui.QGridLayout()
@@ -85,17 +71,14 @@ class SquareFootingTaskPanel:
         self.dia.setSuffix(' mm')
         grid2.addWidget(self.dia, 2, 1)
         
-        self.covering = QtGui.QDoubleSpinBox()
-        self.covering.setRange(0, 300)
-        self.covering.setValue(50)
-        self.covering.setDecimals(1)
-        self.covering.setSuffix(' mm')
-        self.covering.setSingleStep(5)
+        self.covering = FreeCADGui.UiLoader().createWidget("Gui::InputField")
+        self.covering.setText(FreeCAD.Units.Quantity(50,FreeCAD.Units.Length).UserString)
         grid2.addWidget(self.covering, 3, 1)
         
         widget2.setLayout(grid2)
-        
-        
+        return widget2
+    
+    def getWidget3(self):
         widget3 = QtGui.QWidget()
         widget3.setWindowTitle("Position")
         grid3 = QtGui.QGridLayout()
@@ -109,43 +92,38 @@ class SquareFootingTaskPanel:
         self.xLabel.setFixedWidth(20)
         self.yLabel.setFixedWidth(20)
         self.zLabel.setFixedWidth(20)
+
+
         grid3.addWidget(self.xLabel, 1, 0)
         grid3.addWidget(self.yLabel, 2, 0, QtCore.Qt.AlignRight)
         grid3.addWidget(self.zLabel, 3, 0, QtCore.Qt.AlignRight)
         self.dummyLabel = QtGui.QLabel(u"")
         grid3.addWidget(self.dummyLabel, 1, 2)
         
-        self.x = QtGui.QDoubleSpinBox()
-        self.x.setValue(0)
-        self.x.setDecimals(1)
-        self.x.setSuffix(' mm')
-        self.x.setSingleStep(25)
-        self.x.setRange(-1000000, 1000000)
+        self.x = FreeCADGui.UiLoader().createWidget("Gui::InputField")
+        self.x.setText(FreeCAD.Units.Quantity(0,FreeCAD.Units.Length).UserString)
         grid3.addWidget(self.x, 1, 1)
-        self.y = QtGui.QDoubleSpinBox()
-        self.y.setValue(0)
-        self.y.setDecimals(1)
-        self.y.setSuffix(' mm')
-        self.y.setSingleStep(25)
+        self.y = FreeCADGui.UiLoader().createWidget("Gui::InputField")
+        self.y.setText(FreeCAD.Units.Quantity(0,FreeCAD.Units.Length).UserString)
         grid3.addWidget(self.y, 2, 1)
-        self.z = QtGui.QDoubleSpinBox()
-        self.z.setValue(0)
-        self.z.setDecimals(1)
-        self.z.setSuffix(' mm')
-        self.z.setSingleStep(25)
+        self.z = FreeCADGui.UiLoader().createWidget("Gui::InputField")
+        self.z.setText(FreeCAD.Units.Quantity(0,FreeCAD.Units.Length).UserString)
         grid3.addWidget(self.z, 3, 1)
-        widget3.setLayout(grid3)
         
-        self.form = [widget1,widget2,widget3]
+        widget3.setLayout(grid3)
+        return widget3
     
     def accept(self):
-        length = self.Length.value()
-        height = self.Height.value()
+        length = FreeCAD.Units.Quantity(self.Length.text()).Value
+        height = FreeCAD.Units.Quantity(self.Height.text()).Value    #self.Height.value()
         L,B,t = length,length,height
         num = self.numRebar.value()
-        covering = self.covering.value()
+        covering = FreeCAD.Units.Quantity(self.covering.text()).Value 
         dia = self.dia.value()
-        pos = ( self.x.value(),self.y.value(),self.z.value() )
+        x = FreeCAD.Units.Quantity(self.x.text()).Value
+        y = FreeCAD.Units.Quantity(self.y.text()).Value
+        z = FreeCAD.Units.Quantity(self.z.text()).Value
+        pos = ( x,y,z )
         makeSquareFooting(L,t,num,dia,covering,pos)
         return True
 
@@ -168,6 +146,12 @@ def makeSquareFooting(L,t,num,dia,covering,position):
           r_cover=covering+dia/2., l_cover=covering+dia/2., diameter=dia,  \
           rounding=roundFactor, amount_spacing_check=True, amount_spacing_value=num, \
           orientation = "Bottom", structure = footing1, facename = 'Face6')
+    covering1 = covering+dia+9/2.
+    stirrup = Stirrup.makeStirrup(l_cover=covering1, \
+               r_cover=covering1, t_cover=50+20, \
+               b_cover=covering1, f_cover=covering1, \
+               bentAngle=90, bentFactor=6, diameter=9, rounding=2,\
+        amount_spacing_check=True, amount_spacing_value=1, structure = footing1, facename = 'Face2')
     FreeCAD.ActiveDocument.recompute()
 
 if __name__=='__main__':
