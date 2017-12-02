@@ -15,6 +15,13 @@ from Stirrup import makeStirrup
 
 from PySide import QtGui,QtCore
 
+
+def getFaceNameFromVector(structure , axis):
+    for i in range(6):
+        face = structure.Shape.Faces[i]
+        if face.normalAt(0,0) == axis:
+            return "Face%d"%(i+1)
+
 class BeamRebarTaskPanel:
     def __init__(self):
         self.form = [self.getWidgetGeometry(), 
@@ -448,18 +455,32 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
         selected_obj = FreeCADGui.Selection.getSelectionEx()[0]
         structure = selected_obj.Object
     
-    h = structure.Height
+    if structure.Base:
+        h = structure.Base.Height 
+    else:
+        h = structure.Height 
+    
     diaStir = float(  Stirrup['dia'] )
     if direction=='Horizontal':
-        face='Face1'
-        b = structure.Width
-        L = structure.Length
+        if structure.Base:
+            b = structure.Base.Width
+            L = structure.Base.Length
+        else:
+            b = structure.Width
+            L = structure.Length
+        face1 = getFaceNameFromVector(structure , Vector(0,-1,0) )
+        face2 = getFaceNameFromVector(structure , Vector(-1,0,0) )
     elif direction=='Vertical':
-        face='Face2'
-        b = structure.Length
-        L = structure.Width
-    #Msg("b=%g \nh=%g\nL=%g\n "%(b,h,L))
-    
+        if structure.Base:
+            b = structure.Base.Length
+            L = structure.Base.Width
+        else:
+            b = structure.Length
+            L = structure.Width
+
+        face1 = getFaceNameFromVector(structure , Vector(1,0,0) )
+        face2 = getFaceNameFromVector(structure , Vector(0,-1,0) )
+        
     # topMain ----------------    
     dia = float( TopMain['dia'] )
     coverNet =  covering +  diaStir+ dia/2
@@ -469,7 +490,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia, 
               amount_spacing_check=True, amount_spacing_value =int(TopMain['num']) , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
     elif TopMain['type']=='U':
         rebar1 = makeUShapeRebar(f_cover=coverNet, 
                b_cover=float(h)-coverNet-1.5*dia-12*dia, 
@@ -478,7 +499,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
                rounding=3, 
                amount_spacing_check=True, amount_spacing_value=int(TopMain['num']), 
                orientation = "Top", 
-                structure = structure, facename = face)
+                structure = structure, facename = face1)
     elif TopMain['type']=='LL' or TopMain['type']=='LR':
         if TopMain['type']=='LL':
             orientation = 'Top Left'
@@ -490,7 +511,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
                diameter=dia,  rounding=3, 
                amount_spacing_check=True, amount_spacing_value=int(TopMain['num']), 
                orientation = orientation, 
-               structure = structure, facename = face)
+               structure = structure, facename = face1)
     #rebar1.Label = "เหล็กหลักบน"
     rebar1.Label = "TopMainRebar"
 
@@ -503,7 +524,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia, 
               amount_spacing_check=True, amount_spacing_value =int(BottomMain['num']) , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
     elif BottomMain['type']=='U':
         rebar2 = makeUShapeRebar(f_cover=coverNet, 
                t_cover=float(h)-coverNet-1.5*dia-12*dia, 
@@ -512,7 +533,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
                rounding=3, 
                amount_spacing_check=True, amount_spacing_value=int(TopMain['num']), 
                orientation = "Bottom", 
-                structure = structure, facename = face)
+                structure = structure, facename = face1)
     #rebar2.Label = "เหล็กหลักล่าง"
     rebar2.Label = "BottomMainRebar"
     # Add Mid ----------------    
@@ -525,7 +546,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia, 
               amount_spacing_check=True, amount_spacing_value =1 , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
         #rebar3_1.Label = "เหล็กเสริมพิเศษกลางคาน1"   
         rebar3_1.Label = "AddMidRebar1" 
     if BottomMain['num']==2 and  (num==2 or num==3 ):
@@ -536,7 +557,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia, 
               amount_spacing_check=True, amount_spacing_value =numAdd , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
         #rebar3_2.Label = "เหล็กเสริมพิเศษกลางคาน2" 
         rebar3_2.Label = "AddMidRebar2"  
     if BottomMain['num']==2 and  (num==4):
@@ -547,7 +568,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia, 
               amount_spacing_check=True, amount_spacing_value =numAdd , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
         #rebar3_2.Label = "เหล็กเสริมพิเศษกลางคาน2" 
         rebar3_2.Label = "AddMidRebar2" 
     if BottomMain['num']==3 and  (num==1 or num==2 or num==3):
@@ -558,7 +579,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia, 
               amount_spacing_check=True, amount_spacing_value =numAdd , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
         #rebar3_2.Label = "เหล็กเสริมพิเศษกลางคาน2" 
         rebar3_2.Label = "AddMidRebar2" 
 
@@ -573,7 +594,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia,
               amount_spacing_check=True, amount_spacing_value =1 , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
         #rebar4_1.Label = "เหล็กเสริมพิเศษบนขวา1"  
         rebar4_1.Label = "TopAddRightRebar1"  
     if TopMain['num']==2 and (num==2 or num==3 or num==4):
@@ -588,7 +609,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia, 
               amount_spacing_check=True, amount_spacing_value =numAdd , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
         #rebar4_2.Label = "เหล็กเสริมพิเศษกลางคาน2"
         rebar4_2.Label = "TopAddRightRebar2"
     if TopMain['num']==3 and  (num==1 or num==2 or num==3):
@@ -600,7 +621,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
               diameter=dia, 
               amount_spacing_check=True, amount_spacing_value =numAdd , 
               orientation = "Horizontal", 
-              structure = structure, facename =face )
+              structure = structure, facename =face1 )
         #rebar4_2.Label = "เหล็กเสริมพิเศษกลางคาน2" 
         rebar4_2.Label = "TopAddRightRebar2" 
  
@@ -620,18 +641,24 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
         f_cover=gap, bentAngle=135, bentFactor=6, 
         diameter=diaStir, rounding=2,
         amount_spacing_check=True, amount_spacing_value=3, 
-        structure = structure, facename = face)
+        structure = structure, facename = face2)
     stir1.CustomSpacing = "%d@%d"%(num ,  int(spacing) )
-    stir1.Label = "เหล็กปลอก"
+    #stir1.Label = "เหล็กปลอก"
+    stir1.Label = "Stirrup"
 
 def RunBeamRebarDialog():
     selected_obj = FreeCADGui.Selection.getSelectionEx()[0]
     structure = selected_obj.Object
     
-    h = structure.Height 
-    b = structure.Width
-    L = structure.Length
-    #Msg("b=%g \nh=%g\nL=%g\n "%(b,h,L))
+    if structure.Base:
+        h = structure.Base.Height 
+        b = structure.Base.Width
+        L = structure.Base.Length
+    else:
+        h = structure.Height 
+        b = structure.Width
+        L = structure.Length
+    
     if b<L:
         dir = 'Horizontal'
     else:
@@ -639,6 +666,8 @@ def RunBeamRebarDialog():
         temp = b
         b=L
         L =temp
+    
+    
     form1 = BeamRebarTaskPanel()
     form1.L_Label.setText('L=%g'%L)
     form1.b_Label.setText('b=%g'%b)
