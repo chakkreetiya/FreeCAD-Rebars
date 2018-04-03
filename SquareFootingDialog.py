@@ -13,6 +13,12 @@ from PySide import QtGui,QtCore
 
 import  UShapeRebar , Stirrup
 
+def getFaceNameFromVector(structure , axis):
+    for i in range(6):
+        face = structure.Shape.Faces[i]
+        if face.normalAt(0,0) == axis:
+            return "Face%d"%(i+1)
+
 
 class SquareFootingTaskPanel:
     def __init__(self):
@@ -128,30 +134,39 @@ class SquareFootingTaskPanel:
         return True
 
 def makeSquareFooting(L,t,num,dia,covering,position):
-    footing1 = Arch.makeStructure(length=L,width=L,height=t,name='Footing1')
-    footing1.Placement.Base=Vector(+L/2.+position[0], 0++position[1] , +t/2.+position[2])
+
+    concrete = FreeCAD.ActiveDocument.addObject("Part::Box","concrete")
+    concrete.Length = L
+    concrete.Width = L
+    concrete.Height = t
+    concrete.Placement.Base = Vector(-L/2,-L/2,0)
+    footing1 = Arch.makeStructure(concrete)
+
     footing1.ViewObject.Transparency = 80
     FreeCAD.ActiveDocument.recompute()
     
 
     roundFactor = 2
     R = roundFactor*dia
+    face1 = getFaceNameFromVector(footing1 , Vector(1,0,0) )
+    face2 = getFaceNameFromVector(footing1 , Vector(0,1,0) )
+    face3 = getFaceNameFromVector(footing1 , Vector(0,0,1) )
     rebar1 = UShapeRebar.makeUShapeRebar(f_cover=covering+dia/2.+R, \
           b_cover=covering+dia/2.,  t_cover=covering, \
           r_cover=covering+dia/2., l_cover=covering+dia/2., diameter=dia,  \
           rounding=2, amount_spacing_check=True, amount_spacing_value=num, \
-          orientation = "Bottom", structure = footing1, facename = 'Face1')
+          orientation = "Bottom", structure = footing1, facename = face1)
     rebar2 = UShapeRebar.makeUShapeRebar(f_cover=covering+dia/2.+R, \
           b_cover=covering+dia/2.+dia,  t_cover=covering, \
           r_cover=covering+dia/2., l_cover=covering+dia/2., diameter=dia,  \
           rounding=roundFactor, amount_spacing_check=True, amount_spacing_value=num, \
-          orientation = "Bottom", structure = footing1, facename = 'Face6')
+          orientation = "Bottom", structure = footing1, facename = face2)
     covering1 = covering+dia+9/2.
     stirrup = Stirrup.makeStirrup(l_cover=covering1, \
                r_cover=covering1, t_cover=50+20, \
                b_cover=covering1, f_cover=covering1, \
                bentAngle=90, bentFactor=6, diameter=9, rounding=2,\
-        amount_spacing_check=True, amount_spacing_value=1, structure = footing1, facename = 'Face2')
+        amount_spacing_check=True, amount_spacing_value=1, structure = footing1, facename = face3)
     FreeCAD.ActiveDocument.recompute()
 
 if __name__=='__main__':
