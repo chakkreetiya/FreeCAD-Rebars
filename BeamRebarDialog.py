@@ -1,4 +1,4 @@
-# -*- coding=utf8 -*-
+# -*- coding: utf-8 -*-
 # **************************************************
 # *  rebar in beam
 # *   Copyright (c) 2017 - chakkree tiyawongsuwan  *
@@ -390,7 +390,7 @@ class BeamRebarTaskPanel:
 
     
     def accept(self):
-        direction = self.dir_Label.text().split("'")[1]
+        direction = self.dir_Label.text().split("'")[1][:3]
         if self.TypeMain.currentIndex() ==0:
             typeTopMain = 'S'
         elif self.TypeMain.currentIndex() ==1:
@@ -451,6 +451,7 @@ class BeamRebarTaskPanel:
 def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
              Stirrup ,  direction='Horizontal' , covering=25  , 
              structure = None):
+    Msg('direction=%s\n'%direction)
     if not structure:
         selected_obj = FreeCADGui.Selection.getSelectionEx()[0]
         structure = selected_obj.Object
@@ -461,7 +462,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
         h = structure.Height 
     
     diaStir = float(  Stirrup['dia'] )
-    if direction=='Horizontal':
+    if direction.upper()in[ 'HORIZONTAL', 'HOR']:
         if structure.Base:
             b = structure.Base.Width
             L = structure.Base.Length
@@ -470,7 +471,7 @@ def createBeamRebar(TopMain, BottomMain , AddMid , AddTopR ,
             L = structure.Length
         face1 = getFaceNameFromVector(structure , Vector(0,-1,0) )
         face2 = getFaceNameFromVector(structure , Vector(-1,0,0) )
-    elif direction=='Vertical':
+    elif direction.upper()in['VERTICAL','VER']:
         if structure.Base:
             b = structure.Base.Length
             L = structure.Base.Width
