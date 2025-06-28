@@ -5,6 +5,7 @@
 """
 import os
 import FreeCAD
+import FreeCADGui
 import Draft
 import Arch
 
